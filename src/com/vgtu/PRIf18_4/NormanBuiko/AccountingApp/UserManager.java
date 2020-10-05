@@ -1,7 +1,7 @@
 package com.vgtu.PRIf18_4.NormanBuiko.AccountingApp;
 
 import com.vgtu.PRIf18_4.NormanBuiko.AccountingApp.Interfaces.IUserManager;
-import com.vgtu.PRIf18_4.NormanBuiko.AccountingApp.Interfaces.IUserManagerUI;
+import com.vgtu.PRIf18_4.NormanBuiko.AccountingApp.Interfaces.IUI;
 import com.vgtu.PRIf18_4.NormanBuiko.AccountingApp.Interfaces.Icrud;
 import com.vgtu.PRIf18_4.NormanBuiko.AccountingApp.Models.User;
 import com.vgtu.PRIf18_4.NormanBuiko.AccountingApp.Models.UserView;
@@ -11,8 +11,8 @@ import java.util.stream.Collectors;
 
 public class UserManager implements IUserManager, Icrud<User> {
 
-    private final IUserManagerUI userManagerUI = new UserManagerUI();
-    private User loggedInUser = null;
+    private final IUI<UserManager> userManagerUI = new UserManagerUI();
+    private static User loggedInUser = null;
     private final ArrayList<User> allUsers = new ArrayList<>();
 
     public UserManager(){
@@ -34,8 +34,7 @@ public class UserManager implements IUserManager, Icrud<User> {
         allUsers.add(normalUser);
     }
 
-    @Override
-    public UserView getLoggedInUser() {
+    public static UserView getLoggedInUser() {
         return loggedInUser ;
     }
 
@@ -55,7 +54,7 @@ public class UserManager implements IUserManager, Icrud<User> {
 
     @Override
     public void loop() {
-        userManagerUI.Loop(this);
+        userManagerUI.loop(this);
     }
 
     @Override

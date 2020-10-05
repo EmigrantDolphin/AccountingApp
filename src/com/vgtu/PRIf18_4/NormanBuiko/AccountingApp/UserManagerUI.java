@@ -1,16 +1,16 @@
 package com.vgtu.PRIf18_4.NormanBuiko.AccountingApp;
 
-import com.vgtu.PRIf18_4.NormanBuiko.AccountingApp.Interfaces.IUserManagerUI;
+import com.vgtu.PRIf18_4.NormanBuiko.AccountingApp.Interfaces.IUI;
 import com.vgtu.PRIf18_4.NormanBuiko.AccountingApp.Models.User;
 
 import java.util.Scanner;
 
-public class UserManagerUI implements IUserManagerUI {
+public class UserManagerUI implements IUI<UserManager> {
     private Scanner scanner = new Scanner(System.in);
     private UserManager userManager;
 
     @Override
-    public void Loop(UserManager userManager) {
+    public void loop(UserManager userManager) {
         this.userManager = userManager;
         boolean exiting = false;
 
@@ -21,7 +21,14 @@ public class UserManagerUI implements IUserManagerUI {
             System.out.println("4. remove user");
             System.out.println("5. go back");
 
-            var choice = scanner.nextInt();
+            int choice = 0;
+
+            try{
+                choice = scanner.nextInt();
+            }catch (Exception e){
+                System.out.println("Please input a number...");
+                scanner.nextLine();
+            }
 
             switch (choice){
                 case 1:

@@ -1,5 +1,7 @@
 package com.vgtu.PRIf18_4.NormanBuiko.AccountingApp.Models;
 
+import com.vgtu.PRIf18_4.NormanBuiko.AccountingApp.UserManager;
+
 import java.util.ArrayList;
 import java.util.stream.Collectors;
 
@@ -8,6 +10,7 @@ public class Category {
     private ArrayList<UserView> admins = new ArrayList<>();
     public ArrayList<Record> spending = new ArrayList<>();
     public ArrayList<Record> income = new ArrayList<>();
+    public Category parentCategory;
     public ArrayList<Category> subCategories = new ArrayList<>();
 
     public Category(UserView admin, String name){
@@ -15,28 +18,35 @@ public class Category {
         this.name = name;
     }
 
-    public Double GetTotalSpending(){
+    public Category(UserView admin, String name, Category parentCategory){
+        this(admin, name);
+        this.parentCategory = parentCategory;
+    }
+
+
+    public Double getTotalSpending(){
         return spending.stream().mapToDouble(a -> a.amount).sum();
     }
 
-    public Double GetTotalIncome(){
+    public Double getTotalIncome(){
         return income.stream().mapToDouble(a -> a.amount).sum();
     }
 
-    public Double GetTotalIncomeWithSubCategories(){
+    public Double getTotalIncomeWithSubCategories(){
         var sum = income.stream().mapToDouble(a -> a.amount).sum();
-        sum += subCategories.stream().mapToDouble(sc -> sc.GetTotalIncomeWithSubCategories()).sum();
+        sum += subCategories.stream().mapToDouble(sc -> sc.getTotalIncomeWithSubCategories()).sum();
         return sum;
     }
 
-    public Double GetTotalSpendingWithSubCategories(){
+    public Double getTotalSpendingWithSubCategories(){
         var sum = spending.stream().mapToDouble(a -> a.amount).sum();
-        sum += subCategories.stream().mapToDouble(sc -> sc.GetTotalSpendingWithSubCategories()).sum();
+        sum += subCategories.stream().mapToDouble(sc -> sc.getTotalSpendingWithSubCategories()).sum();
         return sum;
     }
 
-    public void SetAdmins(UserView loggedInUserView, ArrayList<UserView> usersToAdd){
-        if (!isAdmin(loggedInUserView)){
+    public void setAdmins(ArrayList<UserView> usersToAdd){
+        if (!isAdmin(UserManager.getLoggedInUser())){
+            System.out.println("You are not an admin in this category");
             return;
         }
 
@@ -47,8 +57,8 @@ public class Category {
         return admins;
     }
 
-    public void SetName(UserView loggedInUserView, String name){
-        if (!isAdmin(loggedInUserView)){
+    public void setName(String name){
+        if (!isAdmin(UserManager.getLoggedInUser())){
             return;
         }
 

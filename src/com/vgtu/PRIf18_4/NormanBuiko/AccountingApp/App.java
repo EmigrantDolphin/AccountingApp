@@ -1,22 +1,16 @@
 package com.vgtu.PRIf18_4.NormanBuiko.AccountingApp;
 
 import com.vgtu.PRIf18_4.NormanBuiko.AccountingApp.Interfaces.IApp;
+import com.vgtu.PRIf18_4.NormanBuiko.AccountingApp.Interfaces.ICategoryManager;
 import com.vgtu.PRIf18_4.NormanBuiko.AccountingApp.Interfaces.IUserManager;
-import com.vgtu.PRIf18_4.NormanBuiko.AccountingApp.Models.RootCategory;
-import com.vgtu.PRIf18_4.NormanBuiko.AccountingApp.Models.UserView;
 
-import java.util.ArrayList;
 import java.util.Scanner;
 
 public class App implements IApp {
 
     private final Scanner scanner = new Scanner(System.in);
     private final IUserManager userManager = new UserManager();
-    private final ArrayList<RootCategory> rootCategories = new ArrayList<>();
-    private final ArrayList<UserView> allUserViews = new ArrayList<>();
-
-    public App(){
-    }
+    private final ICategoryManager categoryManager = new CategoryManager();
 
     public void Run(){
         loginLoop();
@@ -24,7 +18,7 @@ public class App implements IApp {
     }
 
     private void loginLoop(){
-        while (userManager.getLoggedInUser() == null){
+        while (UserManager.getLoggedInUser() == null){
             System.out.println("User is not logged in or failed to login...");
             System.out.println("System admin username: 'root' , password: 'admin'");
             System.out.println("normal username: 'user' , password: 'pass'");
@@ -36,7 +30,7 @@ public class App implements IApp {
 
             userManager.login(username, password);
         }
-        System.out.printf("Logged in successfully. Welcome %s :)",userManager.getLoggedInUser().name);
+        System.out.printf("Logged in successfully. Welcome %s :)",UserManager.getLoggedInUser().name);
     }
 
     private void actionLoop(){
@@ -47,14 +41,22 @@ public class App implements IApp {
             System.out.println("2. Users (Sys admin only)");
             System.out.println("3. exit");
             System.out.print("Action(number): ");
-            var action = scanner.nextInt();
+
+            int action = 0;
+
+            try{
+                action = scanner.nextInt();
+            }catch (Exception e){
+                System.out.println("Please input a number...");
+                scanner.nextLine();
+            }
 
             switch (action){
                 case 1:
-                    CategoryLoop();
+                    categoryManager.loop();
                     break;
                 case 2:
-                    if (userManager.getLoggedInUser().isSystemAdmin){
+                    if (UserManager.getLoggedInUser().isSystemAdmin){
                         userManager.loop();
                     }else{
                         System.out.println("You're not system admin");
@@ -62,10 +64,7 @@ public class App implements IApp {
                     break;
                 case 3:
                     exiting = true;
-                    continue;
             }
         }
     }
-
-    private void CategoryLoop(){}
 }
