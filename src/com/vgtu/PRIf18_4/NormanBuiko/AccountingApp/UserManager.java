@@ -48,12 +48,6 @@ public class UserManager implements IUserManager, Icrud<User>, ISaveable {
     }
 
     @Override
-    public ArrayList<UserView> getAllUserViews() {
-        var userViews = allUsers.stream().map(u -> (UserView)u).collect(Collectors.toList());
-        return (ArrayList<UserView>)userViews;
-    }
-
-    @Override
     public void loop() {
         userManagerUI.loop(this);
     }

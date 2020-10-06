@@ -6,6 +6,5 @@ import java.util.ArrayList;
 
 public interface IUserManager {
     void login(String username, String password);
-    ArrayList<UserView> getAllUserViews();
     void loop();
 }
