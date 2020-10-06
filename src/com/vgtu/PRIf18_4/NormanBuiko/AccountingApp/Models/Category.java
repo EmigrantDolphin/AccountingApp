@@ -2,10 +2,11 @@ package com.vgtu.PRIf18_4.NormanBuiko.AccountingApp.Models;
 
 import com.vgtu.PRIf18_4.NormanBuiko.AccountingApp.UserManager;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.stream.Collectors;
 
-public class Category {
+public class Category implements Serializable {
     private String name;
     private ArrayList<UserView> admins = new ArrayList<>();
     public ArrayList<Record> spending = new ArrayList<>();

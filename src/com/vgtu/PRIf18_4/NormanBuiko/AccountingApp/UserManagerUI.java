@@ -2,6 +2,7 @@ package com.vgtu.PRIf18_4.NormanBuiko.AccountingApp;
 
 import com.vgtu.PRIf18_4.NormanBuiko.AccountingApp.Interfaces.IUI;
 import com.vgtu.PRIf18_4.NormanBuiko.AccountingApp.Models.User;
+import com.vgtu.PRIf18_4.NormanBuiko.AccountingApp.Models.Wrapper;
 
 import java.util.Scanner;
 
@@ -21,16 +22,10 @@ public class UserManagerUI implements IUI<UserManager> {
             System.out.println("4. remove user");
             System.out.println("5. go back");
 
-            int choice = 0;
+            var choiceWrapper = new Wrapper<Integer>();
+            if (!Input.TryGetNextInt(choiceWrapper)) continue;
 
-            try{
-                choice = scanner.nextInt();
-            }catch (Exception e){
-                System.out.println("Please input a number...");
-                scanner.nextLine();
-            }
-
-            switch (choice){
+            switch (choiceWrapper.value){
                 case 1:
                     add();
                     break;
@@ -52,9 +47,6 @@ public class UserManagerUI implements IUI<UserManager> {
     }
 
     private void remove(){
-        if (scanner.hasNextLine()){
-            scanner.nextLine();
-        }
         System.out.print("username to remove: ");
         var usernameToRemove = scanner.nextLine();
         var userToRemove = userManager.read().stream().filter(u -> u.username.equals(usernameToRemove)).findFirst().orElse(null);
@@ -66,9 +58,6 @@ public class UserManagerUI implements IUI<UserManager> {
     }
 
     private void update() {
-        if (scanner.hasNextLine()){
-            scanner.nextLine();
-        }
         System.out.print("username to update: ");
         var usernameToUpdate = scanner.nextLine();
         var userToUpdate = userManager.read().stream().filter(u -> u.username.equals(usernameToUpdate)).findFirst().orElse(null);
@@ -84,12 +73,13 @@ public class UserManagerUI implements IUI<UserManager> {
         System.out.print("surname: ");
         var surname = scanner.nextLine();
         System.out.print("Is system admin? (0 == false, 1 == true): ");
-        var isSystemAdmin = scanner.nextInt();
+        var isSystemAdminWrapper = new Wrapper<Integer>();
+        if (!Input.TryGetNextInt(isSystemAdminWrapper)) return;
 
         userToUpdate.password = password;
         userToUpdate.name = name;
         userToUpdate.surname = surname;
-        userToUpdate.isSystemAdmin = isSystemAdmin != 0;
+        userToUpdate.isSystemAdmin = isSystemAdminWrapper.value != 0;
 
         userManager.update(userToUpdate);
     }
@@ -108,9 +98,6 @@ public class UserManagerUI implements IUI<UserManager> {
     }
 
     private void add(){
-        if (scanner.hasNextLine()){
-            scanner.nextLine();
-        }
         System.out.print("username: ");
         var username = scanner.nextLine();
         System.out.print("password: ");
@@ -120,14 +107,15 @@ public class UserManagerUI implements IUI<UserManager> {
         System.out.print("surname: ");
         var surname = scanner.nextLine();
         System.out.print("Is system admin? (0 == false, 1 == true): ");
-        var isSystemAdmin = scanner.nextInt();
+        var isSystemAdminWrapper = new Wrapper<Integer>();
+        if (!Input.TryGetNextInt(isSystemAdminWrapper)) return;
 
         var user = new User();
         user.username = username;
         user.password = password;
         user.name = name;
         user.surname = surname;
-        user.isSystemAdmin = isSystemAdmin != 0;
+        user.isSystemAdmin = isSystemAdminWrapper.value != 0;
         userManager.add(user);
     }
 }

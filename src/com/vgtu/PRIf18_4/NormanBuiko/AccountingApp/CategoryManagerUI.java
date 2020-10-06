@@ -2,11 +2,15 @@ package com.vgtu.PRIf18_4.NormanBuiko.AccountingApp;
 
 import com.vgtu.PRIf18_4.NormanBuiko.AccountingApp.Interfaces.IUI;
 import com.vgtu.PRIf18_4.NormanBuiko.AccountingApp.Models.Category;
+import com.vgtu.PRIf18_4.NormanBuiko.AccountingApp.Models.Record;
+import com.vgtu.PRIf18_4.NormanBuiko.AccountingApp.Models.Wrapper;
 
+import java.util.ArrayList;
 import java.util.Scanner;
 
 public class CategoryManagerUI implements IUI<CategoryManager> {
     private final Scanner scanner = new Scanner(System.in);
+    private final IUI<ArrayList<Record>> recordUI = new RecordManagerUI();
     private CategoryManager categoryManager;
 
     @Override
@@ -15,28 +19,22 @@ public class CategoryManagerUI implements IUI<CategoryManager> {
         boolean exiting = false;
 
         while(!exiting){
-            System.out.println("\n1. Add category");
+            System.out.printf("\nCurrent category: %s\n", categoryManager.currentCategory.getName());
+            System.out.println("1. Add category");
             System.out.println("2. Read categories");
             System.out.println("3. update category");
             System.out.println("4. remove category");
             System.out.println("5. stats");
-            System.out.println("6. go to category");
-            System.out.println("7. go back a category");
-            System.out.println("8. go back");
+            System.out.println("6. Manage income records");
+            System.out.println("7. Manage spending records");
+            System.out.println("8. go to category");
+            System.out.println("9. go back a category");
+            System.out.println("10. go back");
 
-            int choice = 0;
+            var choiceWrapper = new Wrapper<Integer>();
+            if (!Input.TryGetNextInt(choiceWrapper)) continue;
 
-            try{
-                choice = scanner.nextInt();
-                if (scanner.hasNextLine()){
-                    scanner.nextLine();
-                }
-            }catch (Exception e){
-                System.out.println("Please input a number...");
-                scanner.nextLine();
-            }
-
-            switch (choice){
+            switch (choiceWrapper.value){
                 case 1:
                     add();
                     break;
@@ -53,12 +51,18 @@ public class CategoryManagerUI implements IUI<CategoryManager> {
                     printCurrentCategory();
                     break;
                 case 6:
-                    goToCategory();
+                    recordUI.loop(categoryManager.currentCategory.income);
                     break;
                 case 7:
-                    goBackACategory();
+                    recordUI.loop(categoryManager.currentCategory.spending);
                     break;
                 case 8:
+                    goToCategory();
+                    break;
+                case 9:
+                    goBackACategory();
+                    break;
+                case 10:
                     exiting = true;
                     break;
 
@@ -78,20 +82,12 @@ public class CategoryManagerUI implements IUI<CategoryManager> {
 
     private void goToCategory(){
         System.out.print("Type category id to go to:");
-        int index = -1;
 
-        try{
-            index = scanner.nextInt();
-            if (scanner.hasNextLine()){
-                scanner.nextLine();
-            }
-        }catch (Exception e){
-            System.out.println("Error. Not a number");
-            return;
-        }
+        var indexWrapper = new Wrapper<Integer>();
+        if (!Input.TryGetNextInt(indexWrapper)) return;
 
-        if (index < categoryManager.currentCategory.subCategories.size()){
-            var category = categoryManager.currentCategory.subCategories.get(index);
+        if (indexWrapper.value < categoryManager.currentCategory.subCategories.size()){
+            var category = categoryManager.currentCategory.subCategories.get(indexWrapper.value);
             categoryManager.currentCategory = category;
         }
     }
@@ -120,21 +116,14 @@ public class CategoryManagerUI implements IUI<CategoryManager> {
     }
 
     private void update(){
+        var categories = categoryManager.read();
         System.out.print("Type category id to update:");
-        int index = -1;
 
-        try{
-            index = scanner.nextInt();
-            if (scanner.hasNextLine()){
-                scanner.nextLine();
-            }
-        }catch (Exception e){
-            System.out.println("Error. Not a number");
-            return;
-        }
+        var indexWrapper = new Wrapper<Integer>();
+        if (!Input.TryGetNextInt(indexWrapper)) return;
 
-        if (index < categoryManager.currentCategory.subCategories.size()){
-            var category = categoryManager.currentCategory.subCategories.get(index);
+        if (indexWrapper.value < categories.size()){
+            var category = categories.get(indexWrapper.value);
 
             System.out.print("name: ");
             var name = scanner.nextLine();
@@ -144,18 +133,14 @@ public class CategoryManagerUI implements IUI<CategoryManager> {
     }
 
     private void remove(){
+        var categories = categoryManager.read();
         System.out.print("Type category id to remove:");
-        int index = -1;
 
-        try{
-            index = scanner.nextInt();
-        }catch (Exception e){
-            System.out.println("Error. Not a number");
-            return;
-        }
+        var indexWrapper = new Wrapper<Integer>();
+        if (!Input.TryGetNextInt(indexWrapper)) return;
 
-        if (index < categoryManager.currentCategory.subCategories.size()){
-            categoryManager.currentCategory.subCategories.remove(index);
+        if (indexWrapper.value < categories.size()){
+            categories.remove(categories.get(indexWrapper.value));
         }
     }
 }

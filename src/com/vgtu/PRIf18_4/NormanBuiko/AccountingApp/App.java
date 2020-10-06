@@ -1,16 +1,15 @@
 package com.vgtu.PRIf18_4.NormanBuiko.AccountingApp;
 
 import com.vgtu.PRIf18_4.NormanBuiko.AccountingApp.Interfaces.IApp;
-import com.vgtu.PRIf18_4.NormanBuiko.AccountingApp.Interfaces.ICategoryManager;
-import com.vgtu.PRIf18_4.NormanBuiko.AccountingApp.Interfaces.IUserManager;
+import com.vgtu.PRIf18_4.NormanBuiko.AccountingApp.Models.Wrapper;
 
 import java.util.Scanner;
 
 public class App implements IApp {
 
     private final Scanner scanner = new Scanner(System.in);
-    private final IUserManager userManager = new UserManager();
-    private final ICategoryManager categoryManager = new CategoryManager();
+    private final UserManager userManager = new UserManager();
+    private final CategoryManager categoryManager = new CategoryManager();
 
     public void Run(){
         loginLoop();
@@ -21,7 +20,6 @@ public class App implements IApp {
         while (UserManager.getLoggedInUser() == null){
             System.out.println("User is not logged in or failed to login...");
             System.out.println("System admin username: 'root' , password: 'admin'");
-            System.out.println("normal username: 'user' , password: 'pass'");
             System.out.println("Please login:");
             System.out.print("username: ");
             var username = scanner.nextLine();
@@ -30,7 +28,7 @@ public class App implements IApp {
 
             userManager.login(username, password);
         }
-        System.out.printf("Logged in successfully. Welcome %s :)",UserManager.getLoggedInUser().name);
+        System.out.printf("Logged in successfully. Welcome %s :)\n", UserManager.getLoggedInUser().name);
     }
 
     private void actionLoop(){
@@ -39,19 +37,13 @@ public class App implements IApp {
             System.out.println("Choose an action:");
             System.out.println("1. Categories");
             System.out.println("2. Users (Sys admin only)");
-            System.out.println("3. exit");
+            System.out.println("3. save and exit");
             System.out.print("Action(number): ");
 
-            int action = 0;
+            var choiceWrapper = new Wrapper<Integer>();
+            if (!Input.TryGetNextInt(choiceWrapper)) continue;
 
-            try{
-                action = scanner.nextInt();
-            }catch (Exception e){
-                System.out.println("Please input a number...");
-                scanner.nextLine();
-            }
-
-            switch (action){
+            switch (choiceWrapper.value){
                 case 1:
                     categoryManager.loop();
                     break;
@@ -63,6 +55,8 @@ public class App implements IApp {
                     }
                     break;
                 case 3:
+                    userManager.save();
+                    categoryManager.save();
                     exiting = true;
             }
         }

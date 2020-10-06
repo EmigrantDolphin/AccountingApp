@@ -1,5 +1,6 @@
 package com.vgtu.PRIf18_4.NormanBuiko.AccountingApp;
 
+import com.vgtu.PRIf18_4.NormanBuiko.AccountingApp.Interfaces.ISaveable;
 import com.vgtu.PRIf18_4.NormanBuiko.AccountingApp.Interfaces.IUserManager;
 import com.vgtu.PRIf18_4.NormanBuiko.AccountingApp.Interfaces.IUI;
 import com.vgtu.PRIf18_4.NormanBuiko.AccountingApp.Interfaces.Icrud;
@@ -9,29 +10,29 @@ import com.vgtu.PRIf18_4.NormanBuiko.AccountingApp.Models.UserView;
 import java.util.ArrayList;
 import java.util.stream.Collectors;
 
-public class UserManager implements IUserManager, Icrud<User> {
+public class UserManager implements IUserManager, Icrud<User>, ISaveable {
 
     private final IUI<UserManager> userManagerUI = new UserManagerUI();
     private static User loggedInUser = null;
     private final ArrayList<User> allUsers = new ArrayList<>();
 
+    private final FileDriver<ArrayList<User>> fileDriver = new FileDriver<>();
+    private final String userPath = "./userStorage.txt";
+
     public UserManager(){
+        var loadedUsers = fileDriver.importFile(userPath);
+        if (loadedUsers != null){
+            allUsers.addAll(loadedUsers);
+        }
+
         var adminUser = new User();
-        var normalUser = new User();
         adminUser.username = "root";
         adminUser.password = "admin";
         adminUser.name = "Elon";
         adminUser.surname = "Musk";
         adminUser.isSystemAdmin = true;
 
-        normalUser.username = "user";
-        normalUser.password = "pass";
-        normalUser.name = "Jeff";
-        normalUser.surname = "Bezos";
-        normalUser.isSystemAdmin = false;
-
         allUsers.add(adminUser);
-        allUsers.add(normalUser);
     }
 
     public static UserView getLoggedInUser() {
@@ -60,8 +61,10 @@ public class UserManager implements IUserManager, Icrud<User> {
     @Override
     public void add(User item) {
         if (loggedInUser != null && loggedInUser.isSystemAdmin){
-            var user = findUser(item);
-            if (user == null){
+            var index = allUsers.indexOf(item);
+            if (index >= 0){
+                System.out.printf("User with name '%s' already exists\n", item.username);
+            }else{
                 allUsers.add(item);
             }
         }
@@ -70,9 +73,9 @@ public class UserManager implements IUserManager, Icrud<User> {
     @Override
     public void remove(User item) {
         if (loggedInUser != null && loggedInUser.isSystemAdmin){
-            var userToRemove = findUser(item);
-            if (userToRemove != null){
-                allUsers.remove(userToRemove);
+            var index = allUsers.indexOf(item);
+            if (index >= 0){
+                allUsers.remove(item);
             }
         }
     }
@@ -80,10 +83,9 @@ public class UserManager implements IUserManager, Icrud<User> {
     @Override
     public void update(User item) {
         if (loggedInUser != null && loggedInUser.isSystemAdmin){
-            var userToUpdate = findUser(item);
-            if (userToUpdate != null){
-                //todo: this probs doesn't work. it overwrites a reference in local var, not list.
-                userToUpdate = item;
+            var index = allUsers.indexOf(item);
+            if (index >= 0){
+                allUsers.set(index, item);
             }
         }
     }
@@ -93,7 +95,8 @@ public class UserManager implements IUserManager, Icrud<User> {
         return allUsers;
     }
 
-    private User findUser(User user){
-        return allUsers.stream().filter(u -> u.username.equals(user.username)).findFirst().orElse(null);
+    public void save(){
+        var usersWithoutRoot = allUsers.stream().filter(u -> !u.username.equals("root")).collect(Collectors.toCollection(ArrayList::new));
+        fileDriver.exportFile(usersWithoutRoot, userPath);
     }
 }

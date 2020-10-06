@@ -1,6 +1,8 @@
 package com.vgtu.PRIf18_4.NormanBuiko.AccountingApp.Models;
 
-public class UserView {
+import java.io.Serializable;
+
+public class UserView implements Serializable {
     public String username;
     public String name;
     public String surname;
