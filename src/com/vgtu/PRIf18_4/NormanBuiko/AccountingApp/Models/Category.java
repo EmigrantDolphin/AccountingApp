@@ -45,19 +45,6 @@ public class Category implements Serializable {
         return sum;
     }
 
-    public void setAdmins(ArrayList<UserView> usersToAdd){
-        if (!isAdmin(UserManager.getLoggedInUser())){
-            System.out.println("You are not an admin in this category");
-            return;
-        }
-
-        admins.addAll(usersToAdd);
-    }
-
-    public ArrayList<UserView> GetAdmins(){
-        return admins;
-    }
-
     public void setName(String name){
         if (!isAdmin(UserManager.getLoggedInUser())){
             return;
