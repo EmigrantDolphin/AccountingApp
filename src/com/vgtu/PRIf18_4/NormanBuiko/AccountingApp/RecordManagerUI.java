@@ -72,7 +72,7 @@ public class RecordManagerUI implements IUI<ArrayList<Record>> {
     }
 
     private void update(){
-        System.out.print("Type record ID to update");
+        System.out.print("Type record ID to update: ");
 
         var indexWrapper = new Wrapper<Integer>();
         if (!Input.TryGetNextInt(indexWrapper)) return;
@@ -92,7 +92,7 @@ public class RecordManagerUI implements IUI<ArrayList<Record>> {
     }
 
     private void remove(){
-        System.out.print("Type record ID to remove");
+        System.out.print("Type record ID to remove: ");
 
         var indexWrapper = new Wrapper<Integer>();
         if (!Input.TryGetNextInt(indexWrapper)) return;

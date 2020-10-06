@@ -89,6 +89,7 @@ public class UserManager implements IUserManager, Icrud<User>, ISaveable {
         return allUsers;
     }
 
+    @Override
     public void save(){
         var usersWithoutRoot = allUsers.stream().filter(u -> !u.username.equals("root")).collect(Collectors.toCollection(ArrayList::new));
         fileDriver.exportFile(usersWithoutRoot, userPath);
