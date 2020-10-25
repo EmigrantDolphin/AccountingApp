@@ -1,25 +1,22 @@
-package com.vgtu.PRIf18_4.NormanBuiko.AccountingApp;
+package com.vgtu.PRIf18_4.NormanBuiko.AccountingApp.GUI;
+
+import com.vgtu.PRIf18_4.NormanBuiko.AccountingApp.UserManager;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
-public class AccountingForm {
+public class LoginForm {
     public JPanel panelMain;
     private JPanel panelLogin;
     private JPasswordField fieldPassword;
     private JTextField fieldUsername;
     private JButton buttonLogin;
-    private JPanel panelApp;
     private JButton buttonHelpCredentials;
-    private JTabbedPane tabbedPanel;
-    private JPanel categoryPanel;
-    private JPanel userPanel;
     private final UserManager userManager = new UserManager();
 
-    public AccountingForm(){
+    public LoginForm(){
         registerListeners();
-        panelApp.setVisible(false);
     }
 
     private void registerListeners(){
@@ -47,7 +44,6 @@ public class AccountingForm {
             return;
         }
 
-        panelApp.setVisible(true);
         panelLogin.setVisible(false);
     }
 }

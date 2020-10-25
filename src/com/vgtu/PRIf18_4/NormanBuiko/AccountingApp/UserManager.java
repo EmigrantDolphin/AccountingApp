@@ -19,6 +19,8 @@ public class UserManager implements IUserManager, Icrud<User>, ISaveable {
     private final FileDriver<ArrayList<User>> fileDriver = new FileDriver<>();
     private final String userPath = "./userStorage.txt";
 
+    private static UserManager userManager;
+
     public UserManager(){
         var loadedUsers = fileDriver.importFile(userPath);
         if (loadedUsers != null){
@@ -33,6 +35,12 @@ public class UserManager implements IUserManager, Icrud<User>, ISaveable {
         adminUser.isSystemAdmin = true;
 
         allUsers.add(adminUser);
+    }
+    public static UserManager getUserManager(){
+        if (userManager == null){
+            userManager = new UserManager();
+        }
+        return userManager;
     }
 
     public static UserView getLoggedInUser() {
