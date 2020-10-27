@@ -45,6 +45,9 @@ public class UserPanel extends JPanel {
     private void setupEntryContainer(){
         entryContainerPanel.setLayout(new BoxLayout(entryContainerPanel, BoxLayout.PAGE_AXIS));
         entryContainerPanel.setBorder(new LineBorder(Color.black));
+        for (var user : UserManager.getUserManager().read()){
+            entryContainerPanel.add(createUserEntryPanel(user));
+        }
     }
 
     private void setupNavButtonContainer(){
@@ -95,40 +98,41 @@ public class UserPanel extends JPanel {
     private JPanel createUserEntryPanel(User user){
         var jPanel = new JPanel();
         jPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
-        jPanel.add(new JLabel(user.username));
+        var usernameLabel = new JLabel(user.username);
+        jPanel.add(usernameLabel);
 
         var viewButton = new JButton("View");
-        viewButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                JTextField usernameField = new JTextField(user.username);
-                JTextField passwordField = new JTextField(user.password);
-                JTextField nameField = new JTextField(user.name);
-                JTextField surnameField = new JTextField(user.surname);
-                JRadioButton isSysAdmin = new JRadioButton("Is system admin", user.isSystemAdmin);
-                JRadioButton shouldRemove = new JRadioButton("Remove user");
-                Object[] fields = {
-                        "username: ", usernameField,
-                        "password: ", passwordField,
-                        "name: ", nameField,
-                        "surname: ", surnameField,
-                        "", isSysAdmin,
-                        "", shouldRemove,
-                };
-                int result = JOptionPane.showConfirmDialog(null, fields, "title", JOptionPane.OK_CANCEL_OPTION);
+        viewButton.addActionListener(e -> {
+            JTextField usernameField = new JTextField(user.username);
+            JTextField passwordField = new JTextField(user.password);
+            JTextField nameField = new JTextField(user.name);
+            JTextField surnameField = new JTextField(user.surname);
+            JRadioButton isSysAdmin = new JRadioButton("Is system admin", user.isSystemAdmin);
+            JRadioButton shouldRemove = new JRadioButton("Remove user");
+            Object[] fields = {
+                    "username: ", usernameField,
+                    "password: ", passwordField,
+                    "name: ", nameField,
+                    "surname: ", surnameField,
+                    "", isSysAdmin,
+                    "", shouldRemove,
+            };
+            int result = JOptionPane.showConfirmDialog(null, fields, "title", JOptionPane.OK_CANCEL_OPTION);
 
-                if (shouldRemove.isSelected()){
-                    UserManager.getUserManager().remove(user);
-                    entryContainerPanel.remove(jPanel);
-                }
-                else{
-                    user.username = usernameField.getText();
-                    user.password = passwordField.getText();
-                    user.name = nameField.getText();
-                    user.surname = surnameField.getText();
-                    user.isSystemAdmin = isSysAdmin.isSelected();
-                    UserManager.getUserManager().update(user);
-                }
+            if (result == JOptionPane.CANCEL_OPTION)
+                return;
+
+            if (shouldRemove.isSelected()){
+                UserManager.getUserManager().remove(user);
+                entryContainerPanel.remove(jPanel);
+            }
+            else{
+                user.username = usernameField.getText();
+                user.password = passwordField.getText();
+                user.name = nameField.getText();
+                user.surname = surnameField.getText();
+                user.isSystemAdmin = isSysAdmin.isSelected();
+                usernameLabel.setText(user.username);
             }
         });
 
