@@ -58,7 +58,7 @@ public class LoginPanel extends JPanel {
         buttonHelpCredentials.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                JOptionPane.showMessageDialog(null, "Username: root, Password: admin");
+                JOptionPane.showMessageDialog(null, "Username: root, Password: admin. (Only system admins can view and edit User List)");
             }
         });
     }

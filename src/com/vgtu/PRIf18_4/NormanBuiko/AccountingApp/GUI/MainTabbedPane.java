@@ -1,5 +1,7 @@
 package com.vgtu.PRIf18_4.NormanBuiko.AccountingApp.GUI;
 
+import com.vgtu.PRIf18_4.NormanBuiko.AccountingApp.UserManager;
+
 import javax.swing.*;
 
 public class MainTabbedPane extends JTabbedPane{
@@ -10,9 +12,11 @@ public class MainTabbedPane extends JTabbedPane{
 
     public MainTabbedPane(AccountingAppForm accAppForm){
         this.accountingAppForm = accAppForm;
-        userPanel = new UserPanel();
         categoryPanel = new CategoryPanel();
-        this.addTab("Users", userPanel);
+        if (UserManager.getLoggedInUser().isSystemAdmin){
+            userPanel = new UserPanel();
+            this.addTab("Users", userPanel);
+        }
         this.addTab("Categories", categoryPanel);
     }
 }

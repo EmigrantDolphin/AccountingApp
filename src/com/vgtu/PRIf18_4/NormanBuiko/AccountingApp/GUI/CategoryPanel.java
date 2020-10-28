@@ -10,7 +10,9 @@ import javax.swing.border.LineBorder;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.time.temporal.JulianFields;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.FormatStyle;
 
 public class CategoryPanel extends JPanel {
     private CategoryManager categoryManager = new CategoryManager();
@@ -21,6 +23,8 @@ public class CategoryPanel extends JPanel {
     private JPanel spendingEntryContainer;
 
     public CategoryPanel(){
+
+        AccountingAppForm.OnClosing.add(() -> categoryManager.save());
 
         setupCategoryPanel();
     }
@@ -42,9 +46,9 @@ public class CategoryPanel extends JPanel {
             this.remove(footerContainer);
 
         setupCategoryContainer();
-        setupFooterContainer();
         setupIncomeContainer();
         setupSpendingContainer();
+        setupFooterContainer();
 
 
         // Category entry container. First row whole row
@@ -111,6 +115,10 @@ public class CategoryPanel extends JPanel {
         var labelFlow = new JPanel(new FlowLayout(FlowLayout.LEFT));
         labelFlow.add(new JLabel("Income"));
         incomeEntryContainer.add(labelFlow);
+
+        for (var income : categoryManager.currentCategory.income){
+            incomeEntryContainer.add(createIncomeEntry(income));
+        }
     }
 
     private void setupSpendingContainer() {
@@ -121,6 +129,10 @@ public class CategoryPanel extends JPanel {
         var labelFlow = new JPanel(new FlowLayout(FlowLayout.LEFT));
         labelFlow.add(new JLabel("Spending"));
         spendingEntryContainer.add(labelFlow);
+
+        for (var spending : categoryManager.currentCategory.spending){
+            spendingEntryContainer.add(createSpendingEntry(spending));
+        }
     }
 
 
@@ -170,13 +182,45 @@ public class CategoryPanel extends JPanel {
                     var record = new Record();
                     record.name = nameField.getText();
                     record.amount = Double.parseDouble(amountField.getText());
+                    record.creationDate = LocalDateTime.now();
+                    record.userCreator = UserManager.getLoggedInUser();
                     //todo: check if double legit
+                    categoryManager.currentCategory.income.add(record);
                     incomeEntryContainer.add(createIncomeEntry(record));
-                    setupCategoryPanel();
+                    revalidate();
                 }
             }
         });
         footerContainer.add(addIncomeButton);
+
+
+        var addSpendingButton = new JButton("Add Spending");
+        addSpendingButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                var nameField = new JTextField();
+                var amountField = new JTextField();
+
+                var fields = new Object[]{
+                        "Spending name:", nameField,
+                        "Amount spent", amountField
+                };
+
+                var result = JOptionPane.showConfirmDialog(null, fields, "title", JOptionPane.OK_CANCEL_OPTION );
+                if (result == JOptionPane.OK_OPTION){
+                    var record = new Record();
+                    record.name = nameField.getText();
+                    record.amount = Double.parseDouble(amountField.getText());
+                    record.creationDate = LocalDateTime.now();
+                    record.userCreator = UserManager.getLoggedInUser();
+                    //todo: check if double legit
+                    categoryManager.currentCategory.spending.add(record);
+                    spendingEntryContainer.add(createSpendingEntry(record));
+                    revalidate();
+                }
+            }
+        });
+        footerContainer.add(addSpendingButton);
 
         if (categoryManager.currentCategory.parentCategory != null){
             var backButton = new JButton("Back");
@@ -191,21 +235,81 @@ public class CategoryPanel extends JPanel {
         }
     }
 
-    private JPanel createIncomeEntry(Record record){
+    private JPanel createSpendingEntry(Record record){
         var jPanel = new JPanel();
+        jPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
 
-        var label = new JLabel(String.format("%s, %.2d$", record.name, record.amount));
+        var label = new JLabel(String.format("%s, %.2f$", record.name, record.amount));
         jPanel.add(label);
 
         var viewButton = new JButton("View");
         viewButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                var nameField = new JTextField();
-                var amountField = new JTextField();
+                var userCreatorNameField = new JTextField(record.userCreator.name + " " + record.userCreator.surname);
+                userCreatorNameField.setEnabled(false);
+                userCreatorNameField.setDisabledTextColor(Color.black);
+                var creationDateField = new JTextField(record.creationDate.format(DateTimeFormatter.ofLocalizedDateTime(FormatStyle.SHORT)));
+                creationDateField.setEnabled(false);
+                creationDateField.setDisabledTextColor(Color.black);
+
+                var nameField = new JTextField(record.name);
+                var amountField = new JTextField(record.amount.toString());
+                var shouldRemove = new JRadioButton();
+
+                var fields = new Object[]{
+                        "record created by:", userCreatorNameField,
+                        "record created at:", creationDateField,
+                        "spending name:", nameField,
+                        "Amount spent:", amountField,
+                        "Remove:", shouldRemove
+                };
+
+                var result = JOptionPane.showConfirmDialog(null, fields, "Spending view", JOptionPane.OK_CANCEL_OPTION);
+
+                if (result == JOptionPane.OK_OPTION){
+                    if (shouldRemove.isSelected()){
+                        categoryManager.currentCategory.spending.remove(record);
+                        spendingEntryContainer.remove(jPanel);
+                    }else{
+                        record.name = nameField.getText();
+                        record.amount = Double.parseDouble(amountField.getText());
+                        //todo: check if double legit
+                        setupCategoryPanel();
+                    }
+                }
+            }
+        });
+        jPanel.add(viewButton);
+
+        return jPanel;
+    }
+
+    private JPanel createIncomeEntry(Record record){
+        var jPanel = new JPanel();
+        jPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
+
+        var label = new JLabel(String.format("%s, %.2f$", record.name, record.amount));
+        jPanel.add(label);
+
+        var viewButton = new JButton("View");
+        viewButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                var userCreatorNameField = new JTextField(record.userCreator.name + " " + record.userCreator.surname);
+                userCreatorNameField.setEnabled(false);
+                userCreatorNameField.setDisabledTextColor(Color.black);
+                var creationDateField = new JTextField(record.creationDate.format(DateTimeFormatter.ofLocalizedDateTime(FormatStyle.SHORT)));
+                creationDateField.setEnabled(false);
+                creationDateField.setDisabledTextColor(Color.black);
+
+                var nameField = new JTextField(record.name);
+                var amountField = new JTextField(record.amount.toString());
                 var shouldremove = new JRadioButton();
 
                 var fields = new Object[]{
+                        "record created by:", userCreatorNameField,
+                        "record created at:", creationDateField,
                         "Income name:", nameField,
                         "Amount earned:", amountField,
                         "Remove:", shouldremove
