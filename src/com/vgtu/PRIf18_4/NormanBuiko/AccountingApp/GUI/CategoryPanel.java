@@ -179,12 +179,20 @@ public class CategoryPanel extends JPanel {
 
                 var result = JOptionPane.showConfirmDialog(null, fields, "title", JOptionPane.OK_CANCEL_OPTION );
                 if (result == JOptionPane.OK_OPTION){
+                    double amount;
+
+                    try{
+                        amount = Double.parseDouble(amountField.getText());
+                    }catch (NumberFormatException ex){
+                        JOptionPane.showMessageDialog(null, "'Amount spent' value has to be a number optionally separated by a '.' (dot)");
+                        return;
+                    }
+
                     var record = new Record();
                     record.name = nameField.getText();
-                    record.amount = Double.parseDouble(amountField.getText());
+                    record.amount = amount;
                     record.creationDate = LocalDateTime.now();
                     record.userCreator = UserManager.getLoggedInUser();
-                    //todo: check if double legit
                     categoryManager.currentCategory.income.add(record);
                     incomeEntryContainer.add(createIncomeEntry(record));
                     revalidate();
@@ -208,12 +216,20 @@ public class CategoryPanel extends JPanel {
 
                 var result = JOptionPane.showConfirmDialog(null, fields, "title", JOptionPane.OK_CANCEL_OPTION );
                 if (result == JOptionPane.OK_OPTION){
+                    double amount;
+
+                    try{
+                        amount = Double.parseDouble(amountField.getText());
+                    }catch (NumberFormatException ex){
+                        JOptionPane.showMessageDialog(null, "'Amount spent' value has to be a number optionally separated by a '.' (dot)");
+                        return;
+                    }
+
                     var record = new Record();
                     record.name = nameField.getText();
-                    record.amount = Double.parseDouble(amountField.getText());
+                    record.amount = amount;
                     record.creationDate = LocalDateTime.now();
                     record.userCreator = UserManager.getLoggedInUser();
-                    //todo: check if double legit
                     categoryManager.currentCategory.spending.add(record);
                     spendingEntryContainer.add(createSpendingEntry(record));
                     revalidate();
@@ -272,9 +288,13 @@ public class CategoryPanel extends JPanel {
                         categoryManager.currentCategory.spending.remove(record);
                         spendingEntryContainer.remove(jPanel);
                     }else{
-                        record.name = nameField.getText();
-                        record.amount = Double.parseDouble(amountField.getText());
-                        //todo: check if double legit
+                        try{
+                            record.amount = Double.parseDouble(amountField.getText());
+                            record.name = nameField.getText();
+                        }catch (NumberFormatException ex){
+                            JOptionPane.showMessageDialog(null, "'Amount spent' value has to be a number optionally separated by a '.' (dot)");
+                            return;
+                        }
                         setupCategoryPanel();
                     }
                 }
@@ -322,9 +342,13 @@ public class CategoryPanel extends JPanel {
                         categoryManager.currentCategory.income.remove(record);
                         incomeEntryContainer.remove(jPanel);
                     }else{
-                        record.name = nameField.getText();
-                        record.amount = Double.parseDouble(amountField.getText());
-                        //todo: check if double legit
+                        try{
+                            record.amount = Double.parseDouble(amountField.getText());
+                            record.name = nameField.getText();
+                        }catch (NumberFormatException ex){
+                            JOptionPane.showMessageDialog(null, "'Amount earned' value has to be a number optionally separated by a '.' (dot)");
+                            return;
+                        }
                         setupCategoryPanel();
                     }
                 }

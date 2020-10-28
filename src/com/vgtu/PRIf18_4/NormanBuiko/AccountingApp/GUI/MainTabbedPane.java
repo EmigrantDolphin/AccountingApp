@@ -12,11 +12,13 @@ public class MainTabbedPane extends JTabbedPane{
 
     public MainTabbedPane(AccountingAppForm accAppForm){
         this.accountingAppForm = accAppForm;
-        categoryPanel = new CategoryPanel();
+
         if (UserManager.getLoggedInUser().isSystemAdmin){
             userPanel = new UserPanel();
             this.addTab("Users", userPanel);
         }
+
+        categoryPanel = new CategoryPanel();
         this.addTab("Categories", categoryPanel);
     }
 }

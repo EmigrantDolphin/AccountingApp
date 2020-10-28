@@ -2,7 +2,6 @@ package com.vgtu.PRIf18_4.NormanBuiko.AccountingApp;
 
 import com.vgtu.PRIf18_4.NormanBuiko.AccountingApp.Interfaces.ISaveable;
 import com.vgtu.PRIf18_4.NormanBuiko.AccountingApp.Interfaces.IUserManager;
-import com.vgtu.PRIf18_4.NormanBuiko.AccountingApp.Interfaces.IUI;
 import com.vgtu.PRIf18_4.NormanBuiko.AccountingApp.Interfaces.Icrud;
 import com.vgtu.PRIf18_4.NormanBuiko.AccountingApp.Models.User;
 import com.vgtu.PRIf18_4.NormanBuiko.AccountingApp.Models.UserView;
@@ -12,7 +11,6 @@ import java.util.stream.Collectors;
 
 public class UserManager implements IUserManager, Icrud<User>, ISaveable {
 
-    private final IUI<UserManager> userManagerUI = new UserManagerUI();
     private static User loggedInUser = null;
     private final ArrayList<User> allUsers = new ArrayList<>();
 
@@ -53,11 +51,6 @@ public class UserManager implements IUserManager, Icrud<User>, ISaveable {
                 .filter(u -> u.username.equals(username) && u.password.equals(password))
                 .findFirst()
                 .orElse(null);
-    }
-
-    @Override
-    public void loop() {
-        userManagerUI.loop(this);
     }
 
     @Override

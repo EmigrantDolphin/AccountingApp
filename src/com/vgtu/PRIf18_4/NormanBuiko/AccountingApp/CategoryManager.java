@@ -1,23 +1,19 @@
 package com.vgtu.PRIf18_4.NormanBuiko.AccountingApp;
 
-import com.vgtu.PRIf18_4.NormanBuiko.AccountingApp.Interfaces.ICategoryManager;
 import com.vgtu.PRIf18_4.NormanBuiko.AccountingApp.Interfaces.ISaveable;
 import com.vgtu.PRIf18_4.NormanBuiko.AccountingApp.Interfaces.Icrud;
-import com.vgtu.PRIf18_4.NormanBuiko.AccountingApp.Interfaces.IUI;
 import com.vgtu.PRIf18_4.NormanBuiko.AccountingApp.Models.Category;
 
 import java.util.ArrayList;
 
-public class CategoryManager implements ICategoryManager, Icrud<Category>, ISaveable {
+public class CategoryManager implements Icrud<Category>, ISaveable {
     public Category currentCategory;
-    private IUI<CategoryManager> UI;
 
     private final FileDriver<Category> fileDriver = new FileDriver<>();
     private final String categoryPath = "./categoryStorage.txt";
 
     public CategoryManager(){
         loadCategory();
-        UI = new CategoryManagerUI();
     }
 
     private void loadCategory(){
@@ -28,11 +24,6 @@ public class CategoryManager implements ICategoryManager, Icrud<Category>, ISave
         }else{
             currentCategory = loadedCategory;
         }
-    }
-
-    @Override
-    public void loop() {
-        UI.loop(this);
     }
 
     @Override

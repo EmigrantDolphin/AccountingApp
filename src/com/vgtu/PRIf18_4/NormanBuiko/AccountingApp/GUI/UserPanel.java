@@ -136,8 +136,6 @@ public class UserPanel extends JPanel {
             }
         });
 
-
-
         jPanel.add(viewButton);
         return jPanel;
     }
