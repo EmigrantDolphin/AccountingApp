@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.time.LocalDateTime;
 
 public class Record implements Serializable {
+    private int id;
     public String name;
     public Double amount;
     public LocalDateTime creationDate;

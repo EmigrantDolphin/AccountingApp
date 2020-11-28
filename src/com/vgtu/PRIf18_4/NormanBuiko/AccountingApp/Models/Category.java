@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.stream.Collectors;
 
 public class Category implements Serializable {
+    private int id;
     private String name;
     private ArrayList<UserView> admins = new ArrayList<>();
     public ArrayList<Record> spending = new ArrayList<>();
