@@ -1,14 +1,27 @@
 package com.vgtu.PRIf18_4.NormanBuiko.AccountingApp.Repositories.Abstract;
 
 import com.vgtu.PRIf18_4.NormanBuiko.AccountingApp.GUI.AccountingAppForm;
+import com.vgtu.PRIf18_4.NormanBuiko.AccountingApp.Models.ServerOptions;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 
 public abstract class AccountingAppAbstraction {
-    private static String url = "jdbc:mysql://localhost:3306/accounting_app_store";
+    private static String url = "";
+    private static String username = "";
+    private static String password = "";
     private static Connection connection;
+
+    public static void setServerOptions(ServerOptions serverOptions) throws Exception{
+        if (!url.equals("")){
+            throw new Exception("server connection is already setup. you are not allowed to change it");
+        }
+
+        url = serverOptions.server;
+        username = serverOptions.username;
+        password = serverOptions.password;
+    }
 
     protected Connection getConnection() throws SQLException {
         if (connection == null || connection.isClosed()){
@@ -22,7 +35,7 @@ public abstract class AccountingAppAbstraction {
                 throw new SQLException(ex);
             }
 
-            connection = DriverManager.getConnection(url,"user","");
+            connection = DriverManager.getConnection(url, username, password);
         }
         return connection;
     }
