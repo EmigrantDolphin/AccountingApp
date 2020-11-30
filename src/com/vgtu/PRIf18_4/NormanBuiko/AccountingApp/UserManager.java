@@ -75,9 +75,7 @@ public class UserManager implements IUserManager, Icrud<User>{
                     userRepository.delete(item);
                 }catch (SQLException e){
                     GlobalMessage.show(e.getMessage());
-                    return;
                 }
-
             }else{
                 allUsers.add(item);
             }
