@@ -2,7 +2,7 @@ package com.vgtu.PRIf18_4.NormanBuiko.AccountingApp.Repositories;
 
 import com.vgtu.PRIf18_4.NormanBuiko.AccountingApp.Models.User;
 import com.vgtu.PRIf18_4.NormanBuiko.AccountingApp.Repositories.Abstract.AccountingAppAbstraction;
-import com.vgtu.PRIf18_4.NormanBuiko.AccountingApp.Repositories.Interfaces.IUserRepository;
+import com.vgtu.PRIf18_4.NormanBuiko.AccountingApp.Repositories.Interfaces.IRepository;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -10,10 +10,10 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 
-public class UserRepository extends AccountingAppAbstraction implements IUserRepository  {
+public class UserRepository extends AccountingAppAbstraction implements IRepository<User> {
 
     @Override
-    public void addUser(User userToAdd) throws SQLException {
+    public void add(User userToAdd) throws SQLException {
         var connection = getConnection();
         connection.setAutoCommit(false);
 
@@ -29,7 +29,6 @@ public class UserRepository extends AccountingAppAbstraction implements IUserRep
         var affectedRows = pStatement.executeUpdate();
         if (affectedRows == 0){
             connection.rollback();
-            connection.close();
             throw new SQLException("Failed to add a user");
         }
 
@@ -45,7 +44,7 @@ public class UserRepository extends AccountingAppAbstraction implements IUserRep
     }
 
     @Override
-    public ArrayList<User> getAllUsers() throws SQLException{
+    public ArrayList<User> getAll() throws SQLException{
         ArrayList<User> users = new ArrayList<>();
         var connection = getConnection();
         Statement statement = connection.createStatement();
@@ -72,7 +71,7 @@ public class UserRepository extends AccountingAppAbstraction implements IUserRep
     }
 
     @Override
-    public void updateUser(User updatedUser) throws SQLException {
+    public void update(User updatedUser) throws SQLException {
         var connection = getConnection();
         var query = "update `users` set " +
                 "`username` = ?," +
@@ -92,7 +91,7 @@ public class UserRepository extends AccountingAppAbstraction implements IUserRep
     }
 
     @Override
-    public void deleteUser(User userToDelete) throws SQLException {
+    public void delete(User userToDelete) throws SQLException {
         var connection = getConnection();
         var query = "delete from `users` where `id` = ?";
 

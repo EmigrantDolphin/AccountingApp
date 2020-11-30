@@ -6,10 +6,9 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.stream.Collectors;
 
-public class Category implements Serializable {
-    private int id;
+public class Category extends BaseModel implements Serializable {
     private String name;
-    private ArrayList<UserView> admins = new ArrayList<>();
+    public ArrayList<UserView> admins = new ArrayList<>();
     public ArrayList<Record> spending = new ArrayList<>();
     public ArrayList<Record> income = new ArrayList<>();
     public Category parentCategory;

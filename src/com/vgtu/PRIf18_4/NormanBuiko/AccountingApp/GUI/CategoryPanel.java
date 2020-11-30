@@ -1,8 +1,10 @@
 package com.vgtu.PRIf18_4.NormanBuiko.AccountingApp.GUI;
 
 import com.vgtu.PRIf18_4.NormanBuiko.AccountingApp.CategoryManager;
+import com.vgtu.PRIf18_4.NormanBuiko.AccountingApp.GlobalMessage;
 import com.vgtu.PRIf18_4.NormanBuiko.AccountingApp.Models.Category;
 import com.vgtu.PRIf18_4.NormanBuiko.AccountingApp.Models.Record;
+import com.vgtu.PRIf18_4.NormanBuiko.AccountingApp.Repositories.RecordRepository;
 import com.vgtu.PRIf18_4.NormanBuiko.AccountingApp.UserManager;
 
 import javax.swing.*;
@@ -10,12 +12,14 @@ import javax.swing.border.LineBorder;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.FormatStyle;
 
 public class CategoryPanel extends JPanel {
     private CategoryManager categoryManager = new CategoryManager();
+    private RecordRepository recordRepository = new RecordRepository();
 
     private JPanel footerContainer;
     private JPanel categoryEntryContainer;
@@ -23,9 +27,6 @@ public class CategoryPanel extends JPanel {
     private JPanel spendingEntryContainer;
 
     public CategoryPanel(){
-
-        AccountingAppForm.OnClosing.add(() -> categoryManager.save());
-
         setupCategoryPanel();
     }
 
@@ -193,6 +194,22 @@ public class CategoryPanel extends JPanel {
                     record.amount = amount;
                     record.creationDate = LocalDateTime.now();
                     record.userCreator = UserManager.getLoggedInUser();
+                    record.isSpending = false;
+
+                    try{
+                        record.setCategoryId(categoryManager.currentCategory.getId());
+                    }catch (Exception ex){
+                        GlobalMessage.show(ex.getMessage());
+                        return;
+                    }
+
+                    try{
+                        recordRepository.add(record);
+                    }catch (SQLException ex){
+                        GlobalMessage.show(ex.getMessage());
+                        return;
+                    }
+
                     categoryManager.currentCategory.income.add(record);
                     incomeEntryContainer.add(createIncomeEntry(record));
                     revalidate();
@@ -230,6 +247,22 @@ public class CategoryPanel extends JPanel {
                     record.amount = amount;
                     record.creationDate = LocalDateTime.now();
                     record.userCreator = UserManager.getLoggedInUser();
+                    record.isSpending = true;
+
+                    try{
+                        record.setCategoryId(categoryManager.currentCategory.getId());
+                    }catch (Exception ex){
+                        GlobalMessage.show(ex.getMessage());
+                        return;
+                    }
+
+                    try{
+                        recordRepository.add(record);
+                    }catch (SQLException ex){
+                        GlobalMessage.show(ex.getMessage());
+                        return;
+                    }
+
                     categoryManager.currentCategory.spending.add(record);
                     spendingEntryContainer.add(createSpendingEntry(record));
                     revalidate();
@@ -285,12 +318,24 @@ public class CategoryPanel extends JPanel {
 
                 if (result == JOptionPane.OK_OPTION){
                     if (shouldRemove.isSelected()){
+                        try{
+                            recordRepository.delete(record);
+                        }catch (SQLException ex){
+                            GlobalMessage.show(ex.getMessage());
+                            return;
+                        }
                         categoryManager.currentCategory.spending.remove(record);
                         spendingEntryContainer.remove(jPanel);
                     }else{
                         try{
                             record.amount = Double.parseDouble(amountField.getText());
                             record.name = nameField.getText();
+                            try{
+                                recordRepository.update(record);
+                            }catch (SQLException ex){
+                                GlobalMessage.show(ex.getMessage());
+                                return;
+                            }
                         }catch (NumberFormatException ex){
                             JOptionPane.showMessageDialog(null, "'Amount spent' value has to be a number optionally separated by a '.' (dot)");
                             return;
@@ -339,12 +384,24 @@ public class CategoryPanel extends JPanel {
 
                 if (result == JOptionPane.OK_OPTION){
                     if (shouldremove.isSelected()){
+                        try{
+                            recordRepository.delete(record);
+                        }catch (SQLException ex){
+                            GlobalMessage.show(ex.getMessage());
+                            return;
+                        }
                         categoryManager.currentCategory.income.remove(record);
                         incomeEntryContainer.remove(jPanel);
                     }else{
                         try{
                             record.amount = Double.parseDouble(amountField.getText());
                             record.name = nameField.getText();
+                            try{
+                                recordRepository.update(record);
+                            }catch (SQLException ex){
+                                GlobalMessage.show(ex.getMessage());
+                                return;
+                            }
                         }catch (NumberFormatException ex){
                             JOptionPane.showMessageDialog(null, "'Amount earned' value has to be a number optionally separated by a '.' (dot)");
                             return;
@@ -377,7 +434,7 @@ public class CategoryPanel extends JPanel {
         categoryViewButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                var catNameField = new JTextField();
+                var catNameField = new JTextField(category.getName());
                 var shouldRemoveRadio = new JRadioButton();
 
                 var fields = new Object[]{
@@ -394,6 +451,7 @@ public class CategoryPanel extends JPanel {
                     }else{
                         category.setName(catNameField.getText());
                         categoryGoToButton.setText(catNameField.getText());
+                        categoryManager.update(category);
                     }
                 }
             }

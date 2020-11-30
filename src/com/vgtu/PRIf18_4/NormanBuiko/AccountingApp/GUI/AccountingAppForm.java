@@ -1,7 +1,5 @@
 package com.vgtu.PRIf18_4.NormanBuiko.AccountingApp.GUI;
 
-import com.vgtu.PRIf18_4.NormanBuiko.AccountingApp.UserManager;
-
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.WindowAdapter;
@@ -19,7 +17,7 @@ public class AccountingAppForm extends JFrame {
 
         setupOnCloseEvent();
 
-        this.setPreferredSize(new Dimension(600, 400));
+        this.setPreferredSize(new Dimension(700, 400));
         this.add(loginPanel);
     }
 
@@ -35,8 +33,6 @@ public class AccountingAppForm extends JFrame {
             @Override
             public void windowClosing(WindowEvent e) {
                 super.windowClosing(e);
-
-                UserManager.getUserManager().save();
 
                 for (var onClosingEvent : OnClosing){
                     onClosingEvent.run();

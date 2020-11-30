@@ -83,9 +83,9 @@ public class UserPanel extends JPanel {
                     user.surname = surnameField.getText();
                     user.isSystemAdmin = isSysAdmin.isSelected();
 
-                    entryContainerPanel.add(createUserEntryPanel(user));
-                    //todo: add validation response to crud
                     UserManager.getUserManager().add(user);
+                    if (user.username.equals("")) return;
+                    entryContainerPanel.add(createUserEntryPanel(user));
                 }
 
                 revalidate();
@@ -117,6 +117,14 @@ public class UserPanel extends JPanel {
                     "", isSysAdmin,
                     "", shouldRemove,
             };
+
+            if (user.username.equals("root")){
+                usernameField.setEditable(false);
+                passwordField.setEditable(false);
+                isSysAdmin.setEnabled(false);
+                shouldRemove.setEnabled(false);
+            }
+
             int result = JOptionPane.showConfirmDialog(null, fields, "title", JOptionPane.OK_CANCEL_OPTION);
 
             if (result == JOptionPane.CANCEL_OPTION)
@@ -133,6 +141,7 @@ public class UserPanel extends JPanel {
                 user.surname = surnameField.getText();
                 user.isSystemAdmin = isSysAdmin.isSelected();
                 usernameLabel.setText(user.username);
+                UserManager.getUserManager().update(user);
             }
         });
 

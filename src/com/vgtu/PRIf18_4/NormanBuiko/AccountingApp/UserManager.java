@@ -1,39 +1,41 @@
 package com.vgtu.PRIf18_4.NormanBuiko.AccountingApp;
 
-import com.vgtu.PRIf18_4.NormanBuiko.AccountingApp.Interfaces.ISaveable;
 import com.vgtu.PRIf18_4.NormanBuiko.AccountingApp.Interfaces.IUserManager;
 import com.vgtu.PRIf18_4.NormanBuiko.AccountingApp.Interfaces.Icrud;
 import com.vgtu.PRIf18_4.NormanBuiko.AccountingApp.Models.User;
 import com.vgtu.PRIf18_4.NormanBuiko.AccountingApp.Models.UserView;
+import com.vgtu.PRIf18_4.NormanBuiko.AccountingApp.Repositories.UserRepository;
 
+import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.stream.Collectors;
 
-public class UserManager implements IUserManager, Icrud<User>, ISaveable {
+public class UserManager implements IUserManager, Icrud<User>{
 
     private static User loggedInUser = null;
     private final ArrayList<User> allUsers = new ArrayList<>();
 
-    private final FileDriver<ArrayList<User>> fileDriver = new FileDriver<>();
-    private final String userPath = "./userStorage.txt";
+    private final UserRepository userRepository = new UserRepository();
 
     private static UserManager userManager;
 
     public UserManager(){
-        var loadedUsers = fileDriver.importFile(userPath);
+        var loadedUsers = loadUsers();
+
         if (loadedUsers != null){
             allUsers.addAll(loadedUsers);
         }
-
-        var adminUser = new User();
-        adminUser.username = "root";
-        adminUser.password = "admin";
-        adminUser.name = "Elon";
-        adminUser.surname = "Musk";
-        adminUser.isSystemAdmin = true;
-
-        allUsers.add(adminUser);
     }
+
+    private ArrayList<User> loadUsers(){
+        try{
+            return userRepository.getAll();
+        }catch (SQLException e){
+            GlobalMessage.show(e.getMessage());
+            return null;
+        }
+    }
+
+
     public static UserManager getUserManager(){
         if (userManager == null){
             userManager = new UserManager();
@@ -56,9 +58,26 @@ public class UserManager implements IUserManager, Icrud<User>, ISaveable {
     @Override
     public void add(User item) {
         if (loggedInUser != null && loggedInUser.isSystemAdmin){
+
+            try{
+                userRepository.add(item);
+            }catch (SQLException e){
+                GlobalMessage.show(e.getMessage());
+                item.username = "";
+                return;
+            }
+
             var index = allUsers.indexOf(item);
             if (index >= 0){
-                System.out.printf("User with name '%s' already exists\n", item.username);
+                System.out.printf("User with username '%s' already exists\n", item.username);
+
+                try{
+                    userRepository.delete(item);
+                }catch (SQLException e){
+                    GlobalMessage.show(e.getMessage());
+                    return;
+                }
+
             }else{
                 allUsers.add(item);
             }
@@ -68,6 +87,15 @@ public class UserManager implements IUserManager, Icrud<User>, ISaveable {
     @Override
     public void remove(User item) {
         if (loggedInUser != null && loggedInUser.isSystemAdmin){
+
+            try{
+                userRepository.delete(item);
+            }catch (SQLException e){
+                var message = String.format("Make sure to delete all categories where this user(%s) is admin first.\n", item.username);
+                GlobalMessage.show(message + e.getMessage());
+                return;
+            }
+
             var index = allUsers.indexOf(item);
             if (index >= 0){
                 allUsers.remove(item);
@@ -78,6 +106,14 @@ public class UserManager implements IUserManager, Icrud<User>, ISaveable {
     @Override
     public void update(User item) {
         if (loggedInUser != null && loggedInUser.isSystemAdmin){
+
+            try{
+                userRepository.update(item);
+            }catch (SQLException e){
+                GlobalMessage.show(e.getMessage());
+                return;
+            }
+
             var index = allUsers.indexOf(item);
             if (index >= 0){
                 allUsers.set(index, item);
@@ -90,9 +126,4 @@ public class UserManager implements IUserManager, Icrud<User>, ISaveable {
         return allUsers;
     }
 
-    @Override
-    public void save(){
-        var usersWithoutRoot = allUsers.stream().filter(u -> !u.username.equals("root")).collect(Collectors.toCollection(ArrayList::new));
-        fileDriver.exportFile(usersWithoutRoot, userPath);
-    }
 }
